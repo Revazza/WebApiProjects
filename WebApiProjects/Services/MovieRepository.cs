@@ -12,7 +12,7 @@ namespace MoviesDatabase.Api.Services
         Task AddMovieAsync(AddMovieRequest request);
         Task<List<MovieEntity>> GetAllMoviesAsync();
         Task<MovieEntity?> GetMovieByIdAsync(Guid id);
-        Task<List<MovieDto>> SearchMovies(SearchMovieRequest request);
+        Task<List<MovieDto>> SearchMoviesAsync(SearchMovieRequest request);
         Task<MovieEntity> UpdateMovieAsync(UpdateMovieRequest request);
         Task DeleteMovieAsync(Guid movieId);
         Task SaveChangesAsync();
@@ -69,9 +69,13 @@ namespace MoviesDatabase.Api.Services
             return movie != null ? movie : null;
         }
 
-        public async Task<List<MovieDto>> SearchMovies(SearchMovieRequest request)
+        public async Task<List<MovieDto>> SearchMoviesAsync(SearchMovieRequest request)
         {
-            var movies = _context.Movies.Include(m => m.Directors).AsQueryable();
+            int moviesToSkipAmount = request.PageSize * request.PageIndex;
+            var movies = _context.Movies
+                .Skip(moviesToSkipAmount)
+                .Take(request.PageSize)
+                .Include(m => m.Directors).AsQueryable();
 
             if (!string.IsNullOrEmpty(request.MovieName))
             {

@@ -13,24 +13,30 @@ namespace MoviesDatabase.Api.Controllers
     {
         private readonly IMovieRepository _moviesService;
 
+        private const int MAX_PAGE_SIZE = 100;
+
         public MoviesController(IMovieRepository moviesService)
         {
             _moviesService = moviesService;
         }
 
-
         [HttpPost("add-movie")]
         public async Task<IActionResult> AddMovie(AddMovieRequest request)
         {
-            if (!request.DirectorIds!.Any())
+            try
             {
-                return BadRequest("No directors specified");
+                request.Validate();
+                await _moviesService.AddMovieAsync(request);
+
+                await _moviesService.SaveChangesAsync();
+
+                return Ok("");
             }
-            await _moviesService.AddMovieAsync(request);
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
 
-            await _moviesService.SaveChangesAsync();
-
-            return Ok("");
         }
 
         [HttpGet("get-movies-by-id/{movieId}")]
@@ -44,7 +50,11 @@ namespace MoviesDatabase.Api.Controllers
         [HttpPost("search-movies")]
         public async Task<IActionResult> SearchMovies(SearchMovieRequest request)
         {
-            var filteredMovies = await _moviesService.SearchMovies(request);
+            if (request.PageSize > MAX_PAGE_SIZE)
+            {
+                return BadRequest("Page size exceeded page size limitation");
+            }
+            var filteredMovies = await _moviesService.SearchMoviesAsync(request);
 
             return Ok(filteredMovies);
         }

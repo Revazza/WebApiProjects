@@ -7,6 +7,9 @@
         public string? DirectorName { get; set; } = string.Empty;
         public DateTime? RealiseDate { get; set; } = DateTime.MinValue;
         public bool Ordered { get; set; } = false;
+        public int PageSize { get; set; }
+        public int PageIndex { get; set; }
+
 
 
     }
