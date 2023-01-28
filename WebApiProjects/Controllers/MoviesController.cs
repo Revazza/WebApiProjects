@@ -65,7 +65,16 @@ namespace MoviesDatabase.Api.Controllers
 
                 return BadRequest(e.Message);
             }
-            
+
+        }
+
+        [HttpDelete("delete-movie")]
+        public async Task<IActionResult> DeleteMovie(Guid movieId)
+        {
+            await _moviesService.DeleteMovieAsync(movieId);
+
+            await _moviesService.SaveChangesAsync();
+            return Ok();
         }
 
         [HttpGet("get-all-movies")]

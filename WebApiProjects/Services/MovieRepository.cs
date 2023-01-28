@@ -14,6 +14,7 @@ namespace MoviesDatabase.Api.Services
         Task<MovieEntity?> GetMovieByIdAsync(Guid id);
         Task<List<MovieDto>> SearchMovies(SearchMovieRequest request);
         Task<MovieEntity> UpdateMovieAsync(UpdateMovieRequest request);
+        Task DeleteMovieAsync(Guid movieId);
         Task SaveChangesAsync();
 
     }
@@ -124,11 +125,26 @@ namespace MoviesDatabase.Api.Services
 
             return movieToUpdate;
         }
+
+        public async Task DeleteMovieAsync(Guid movieId)
+        {
+            var movie = await _context.Movies
+                             .Include(m => m.Directors)
+                             .FirstOrDefaultAsync(m => m.MovieId == movieId);
+            if (movie == null)
+            {
+                throw new ArgumentException("Can't identify movie");
+            }
+
+            var directors = _context.Directors;
+            await directors.ForEachAsync(d => d.Movies.Remove(movie));
+
+            _context.Movies.Remove(movie);
+        }
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
         }
-
 
     }
 }
