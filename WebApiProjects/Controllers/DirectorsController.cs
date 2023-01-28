@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MoviesDatabase.Api.Db.Entities;
 using MoviesDatabase.Api.Models.Requests;
 using MoviesDatabase.Api.Services;
 
@@ -22,10 +23,15 @@ namespace MoviesDatabase.Api.Controllers
         {
             
             await _directorRepository.AddDirectorAsync(request);
-
             await _directorRepository.SaveChangesAsync();
 
             return Ok();
+        }
+
+        [HttpGet("get-all-directors")]
+        public async Task<List<DirectorEntity>> GetAllDirectors()
+        {
+            return await _directorRepository.GetAllDirectors();
         }
 
 

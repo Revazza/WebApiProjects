@@ -9,6 +9,7 @@ namespace MoviesDatabase.Api.Services
     public interface IMovieRepository
     {
         Task AddMovieAsync(AddMovieRequest request);
+        Task<List<MovieEntity>> GetAllMoviesAsync();
         Task SaveChangesAsync();
     }
 
@@ -44,8 +45,15 @@ namespace MoviesDatabase.Api.Services
                 ReleaseDate = request.ReleaseDate,
             };
 
+            directors.ForEach(d => d.Movies.Add(newMovie));
+            
             await _context.Movies.AddAsync(newMovie);
 
+        }
+
+        public async Task<List<MovieEntity>> GetAllMoviesAsync()
+        {
+            return await _context.Movies.Include(m => m.Directors).ToListAsync();
         }
 
         public async Task SaveChangesAsync()

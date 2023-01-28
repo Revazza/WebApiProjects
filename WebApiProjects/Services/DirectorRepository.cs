@@ -1,4 +1,5 @@
-﻿using MoviesDatabase.Api.Db.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using MoviesDatabase.Api.Db.Entities;
 using MoviesDatabase.Api.Models.Requests;
 using System.Reflection.PortableExecutable;
 using WebApiProjects.Db;
@@ -8,6 +9,7 @@ namespace MoviesDatabase.Api.Services
     public interface IDirectorRepository
     {
         Task AddDirectorAsync(AddDirectorRequest request);
+        Task<List<DirectorEntity>> GetAllDirectors();
         Task SaveChangesAsync();
     }
     public class DirectorRepository : IDirectorRepository
@@ -29,6 +31,11 @@ namespace MoviesDatabase.Api.Services
             };
 
             await _context.Directors.AddAsync(newDirector);
+        }
+
+        public async Task<List<DirectorEntity>> GetAllDirectors()
+        {   
+            return await _context.Directors.Include(d => d.Movies).ToListAsync();
         }
 
         public async Task SaveChangesAsync()

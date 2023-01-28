@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MoviesDatabase.Api.Services;
+using System.Text.Json.Serialization;
 using WebApiProjects.Db;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 
 //for project simplicity I'll just hard-code sql server value
 builder.Services.AddDbContext<MoviesDbContext>(options =>

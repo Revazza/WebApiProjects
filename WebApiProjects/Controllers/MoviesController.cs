@@ -21,7 +21,7 @@ namespace MoviesDatabase.Api.Controllers
         [HttpPost("add-movie")]
         public async Task<IActionResult> AddMovie(AddMovieRequest request)
         {
-            if(!request.DirectorIds!.Any())
+            if (!request.DirectorIds!.Any())
             {
                 return BadRequest("No directors specified");
             }
@@ -30,6 +30,12 @@ namespace MoviesDatabase.Api.Controllers
             await _moviesService.SaveChangesAsync();
 
             return Ok("");
+        }
+        [HttpGet("get-all-movies")]
+        public async Task<IActionResult> GetAllMovies()
+        {
+            var movies = await _moviesService.GetAllMoviesAsync();
+            return Ok(movies);
         }
 
 
