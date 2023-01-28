@@ -13,6 +13,7 @@ namespace MoviesDatabase.Api.Services
         Task<List<MovieEntity>> GetAllMoviesAsync();
         Task<MovieEntity?> GetMovieByIdAsync(Guid id);
         Task<List<MovieDto>> SearchMovies(SearchMovieRequest request);
+        Task<MovieEntity> UpdateMovieAsync(UpdateMovieRequest request);
         Task SaveChangesAsync();
 
     }
@@ -67,11 +68,6 @@ namespace MoviesDatabase.Api.Services
             return movie != null ? movie : null;
         }
 
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-
         public async Task<List<MovieDto>> SearchMovies(SearchMovieRequest request)
         {
             var movies = _context.Movies.Include(m => m.Directors).AsQueryable();
@@ -110,5 +106,29 @@ namespace MoviesDatabase.Api.Services
                 }
                 ).ToListAsync();
         }
+
+        public async Task<MovieEntity> UpdateMovieAsync(UpdateMovieRequest request)
+        {
+            var movieToUpdate = await _context.Movies.FirstOrDefaultAsync(m => m.MovieId == request.MovieId);
+
+            if (movieToUpdate == null)
+            {
+                throw new ArgumentException("Can't identify movie");
+            }
+
+            movieToUpdate.Name = request.Name;
+            movieToUpdate.Description = request.Description;
+            movieToUpdate.ReleaseDate = request.ReleaseDate;
+
+            _context.Movies.Update(movieToUpdate);
+
+            return movieToUpdate;
+        }
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+
     }
 }

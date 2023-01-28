@@ -49,6 +49,25 @@ namespace MoviesDatabase.Api.Controllers
             return Ok(filteredMovies);
         }
 
+        [HttpPost("update-movie")]
+        public async Task<IActionResult> UpdateMovie(UpdateMovieRequest request)
+        {
+            try
+            {
+                var updatedMovie = await _moviesService.UpdateMovieAsync(request);
+
+                await _moviesService.SaveChangesAsync();
+
+                return Ok(updatedMovie);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+            
+        }
+
         [HttpGet("get-all-movies")]
         public async Task<IActionResult> GetAllMovies()
         {
