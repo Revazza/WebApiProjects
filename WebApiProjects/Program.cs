@@ -1,15 +1,21 @@
+using Microsoft.EntityFrameworkCore;
+using WebApiProjects.Db;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//for project simplicity I'll just hard-code value sql server
+builder.Services.AddDbContext<MoviesDbContext>(options =>
+{
+    options.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=MoviesDatabase");
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
