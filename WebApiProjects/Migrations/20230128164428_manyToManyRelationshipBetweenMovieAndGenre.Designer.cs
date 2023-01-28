@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApiProjects.Db;
 
@@ -11,9 +12,11 @@ using WebApiProjects.Db;
 namespace MoviesDatabase.Api.Migrations
 {
     [DbContext(typeof(MoviesDbContext))]
-    partial class MoviesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230128164428_manyToManyRelationshipBetweenMovieAndGenre")]
+    partial class manyToManyRelationshipBetweenMovieAndGenre
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,37 +27,37 @@ namespace MoviesDatabase.Api.Migrations
 
             modelBuilder.Entity("DirectorEntityMovieEntity", b =>
                 {
-                    b.Property<Guid>("DirectorsId")
+                    b.Property<Guid>("DirectorsDirectorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("MoviesId")
+                    b.Property<Guid>("MoviesMovieId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("DirectorsId", "MoviesId");
+                    b.HasKey("DirectorsDirectorId", "MoviesMovieId");
 
-                    b.HasIndex("MoviesId");
+                    b.HasIndex("MoviesMovieId");
 
                     b.ToTable("DirectorMovies", (string)null);
                 });
 
             modelBuilder.Entity("GenreEntityMovieEntity", b =>
                 {
-                    b.Property<Guid>("GenresId")
+                    b.Property<Guid>("GenresGenreId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("MoviesId")
+                    b.Property<Guid>("MoviesMovieId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("GenresId", "MoviesId");
+                    b.HasKey("GenresGenreId", "MoviesMovieId");
 
-                    b.HasIndex("MoviesId");
+                    b.HasIndex("MoviesMovieId");
 
                     b.ToTable("MovieGenres", (string)null);
                 });
 
             modelBuilder.Entity("MoviesDatabase.Api.Db.Entities.DirectorEntity", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("DirectorId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -67,28 +70,28 @@ namespace MoviesDatabase.Api.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("DirectorId");
 
                     b.ToTable("Directors");
                 });
 
             modelBuilder.Entity("MoviesDatabase.Api.Db.Entities.GenreEntity", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("GenreId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("GenreId");
 
                     b.ToTable("Genres");
                 });
 
             modelBuilder.Entity("WebApiProjects.Db.Entities.MovieEntity", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("MovieId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -109,7 +112,7 @@ namespace MoviesDatabase.Api.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("MovieId");
 
                     b.ToTable("Movies");
                 });
@@ -118,13 +121,13 @@ namespace MoviesDatabase.Api.Migrations
                 {
                     b.HasOne("MoviesDatabase.Api.Db.Entities.DirectorEntity", null)
                         .WithMany()
-                        .HasForeignKey("DirectorsId")
+                        .HasForeignKey("DirectorsDirectorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WebApiProjects.Db.Entities.MovieEntity", null)
                         .WithMany()
-                        .HasForeignKey("MoviesId")
+                        .HasForeignKey("MoviesMovieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -133,13 +136,13 @@ namespace MoviesDatabase.Api.Migrations
                 {
                     b.HasOne("MoviesDatabase.Api.Db.Entities.GenreEntity", null)
                         .WithMany()
-                        .HasForeignKey("GenresId")
+                        .HasForeignKey("GenresGenreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WebApiProjects.Db.Entities.MovieEntity", null)
                         .WithMany()
-                        .HasForeignKey("MoviesId")
+                        .HasForeignKey("MoviesMovieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

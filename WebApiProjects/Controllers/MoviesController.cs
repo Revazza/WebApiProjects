@@ -93,6 +93,17 @@ namespace MoviesDatabase.Api.Controllers
             var movies = await _moviesService.GetAllMoviesAsync();
             return Ok(movies);
         }
+        [HttpGet("get-all-genres")]
+        public async Task<IActionResult> GetAllGenres()
+        {
+            var genres = await _moviesService.GetAllGenresAsync();
+            return Ok(genres);
+        }
+        [HttpPost("find-movie-by-genre")]
+        public async Task<IActionResult> SearchMovies(string genre)
+        {
+            return Ok(await _moviesService.SearchMovieByGenresAsync(genre));
+        }
 
 
     }

@@ -10,6 +10,7 @@ namespace MoviesDatabase.Api.Models.Requests
         public string? Description { get; set; }
         public DateTime ReleaseDate { get; set; }
         public List<Guid>? DirectorIds { get; set; } = new List<Guid>();
+        public List<Guid>? GenreIds { get; set; }
 
 
         public void Validate()
@@ -22,11 +23,11 @@ namespace MoviesDatabase.Api.Models.Requests
             {
                 throw new ArgumentNullException("Description is not specified");
             }
-            if (DateTime.Now.Year > ReleaseDate.Year)
+            if (DateTime.Now.Year < ReleaseDate.Year)
             {
-                throw new ArgumentNullException("Name is not specified");
+                throw new ArgumentNullException("Film making began from 1888");
             }
-            if (DirectorIds!.Any())
+            if (!DirectorIds!.Any())
             {
                 throw new ArgumentException("No directors specified");
             }

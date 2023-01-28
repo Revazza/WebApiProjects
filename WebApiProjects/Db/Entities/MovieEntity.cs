@@ -14,13 +14,15 @@ namespace WebApiProjects.Db.Entities
     public class MovieEntity
     {
         [Key]
-        public Guid MovieId { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string? Name { get; set; }
         public string? Description { get; set; }
         public DateTime ReleaseDate { get; set; }
         public MovieStatus Status { get; set; } = MovieStatus.Active;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public List<DirectorEntity> Directors { get; set; }
+        public List<GenreEntity> Genres { get; set; }
+
 
         public MovieEntity()
         {

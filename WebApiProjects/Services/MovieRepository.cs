@@ -1,7 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using MoviesDatabase.Api.Db.Entities;
 using MoviesDatabase.Api.Models.Dto;
 using MoviesDatabase.Api.Models.Requests;
+using System.IO;
 using WebApiProjects.Db;
 using WebApiProjects.Db.Entities;
 
@@ -14,7 +17,9 @@ namespace MoviesDatabase.Api.Services
         Task<MovieEntity?> GetMovieByIdAsync(Guid id);
         Task<List<MovieDto>> SearchMoviesAsync(SearchMovieRequest request);
         Task<MovieEntity> UpdateMovieAsync(UpdateMovieRequest request);
+        Task<List<GenreEntity>> GetAllGenresAsync();
         Task DeleteMovieAsync(Guid movieId);
+        Task<List<MovieDto>> SearchMovieByGenresAsync(string genre);
         Task SaveChangesAsync();
 
     }
@@ -24,18 +29,12 @@ namespace MoviesDatabase.Api.Services
     {
         private readonly MoviesDbContext _context;
 
-        public MovieRepository(MoviesDbContext context)
+        private async Task AddMovieToDirectorsAsync(List<Guid> directorIds, List<DirectorEntity> directors)
         {
-            _context = context;
-        }
-        public async Task AddMovieAsync(AddMovieRequest request)
-        {
-            var directors = new List<DirectorEntity>();
-
-            foreach (var directorId in request.DirectorIds)
+            foreach (var directorId in directorIds)
             {
                 var director = await _context.Directors
-                    .FirstOrDefaultAsync(d => d.DirectorId == directorId);
+                    .FirstOrDefaultAsync(d => d.Id == directorId);
 
                 if (director == null)
                 {
@@ -43,6 +42,34 @@ namespace MoviesDatabase.Api.Services
                 }
                 directors.Add(director);
             }
+        }
+        private async Task AddMovieToGenresAsync(List<Guid> directorIds, List<GenreEntity> genres)
+        {
+
+            foreach (var genreId in directorIds)
+            {
+                var genre = await _context.Genres
+                    .FirstOrDefaultAsync(d => d.Id == genreId);
+
+                if (genre == null)
+                {
+                    throw new ArgumentException("Can't identify director");
+                }
+                genres.Add(genre);
+            }
+        }
+
+        public MovieRepository(MoviesDbContext context)
+        {
+            _context = context;
+        }
+        public async Task AddMovieAsync(AddMovieRequest request)
+        {
+            var directors = new List<DirectorEntity>();
+            var genres = new List<GenreEntity>();
+
+            await AddMovieToDirectorsAsync(request.DirectorIds!, directors!);
+            await AddMovieToGenresAsync(request.GenreIds!, genres);
 
             var newMovie = new MovieEntity()
             {
@@ -51,20 +78,21 @@ namespace MoviesDatabase.Api.Services
                 ReleaseDate = request.ReleaseDate,
             };
 
-            directors.ForEach(d => d.Movies.Add(newMovie));
-
             await _context.Movies.AddAsync(newMovie);
+
+            directors.ForEach(d => d.Movies.Add(newMovie));
+            genres.ForEach(g => g.Movies.Add(newMovie));
 
         }
 
         public async Task<List<MovieEntity>> GetAllMoviesAsync()
         {
-            return await _context.Movies.ToListAsync();
+            return await _context.Movies.Include(m => m.Genres).ToListAsync();
         }
 
         public async Task<MovieEntity?> GetMovieByIdAsync(Guid id)
         {
-            var movie = await _context.Movies.FirstOrDefaultAsync(m => m.MovieId == id);
+            var movie = await _context.Movies.FirstOrDefaultAsync(m => m.Id == id);
 
             return movie != null ? movie : null;
         }
@@ -99,10 +127,11 @@ namespace MoviesDatabase.Api.Services
                 movies = movies.OrderBy(m => m.ReleaseDate);
             }
 
+
             return await movies
                 .Select(m => new MovieDto()
                 {
-                    MovieId = m.MovieId,
+                    MovieId = m.Id,
                     Name = m.Name,
                     Description = m.Description,
                     Status = m.Status,
@@ -114,7 +143,7 @@ namespace MoviesDatabase.Api.Services
 
         public async Task<MovieEntity> UpdateMovieAsync(UpdateMovieRequest request)
         {
-            var movieToUpdate = await _context.Movies.FirstOrDefaultAsync(m => m.MovieId == request.MovieId);
+            var movieToUpdate = await _context.Movies.FirstOrDefaultAsync(m => m.Id == request.MovieId);
 
             if (movieToUpdate == null)
             {
@@ -134,7 +163,7 @@ namespace MoviesDatabase.Api.Services
         {
             var movie = await _context.Movies
                              .Include(m => m.Directors)
-                             .FirstOrDefaultAsync(m => m.MovieId == movieId);
+                             .FirstOrDefaultAsync(m => m.Id == movieId);
 
             if (movie == null)
             {
@@ -144,10 +173,36 @@ namespace MoviesDatabase.Api.Services
 
             _context.Movies.Update(movie);
         }
+        public async Task<List<GenreEntity>> GetAllGenresAsync()
+        {
+            return await _context.Genres.ToListAsync();
+        }
+        public async Task<List<MovieDto>> SearchMovieByGenresAsync(string genres)
+        {
+            var movies = _context.Movies.Include(m => m.Genres);
+            var filteredMoviesByGenre = movies.Where(m =>
+                m.Genres.Any(d =>
+                d.Name!.Contains(genres)));
+
+
+            return await filteredMoviesByGenre
+                .Select(m => new MovieDto()
+                {
+                    MovieId = m.Id,
+                    Name = m.Name,
+                    Description = m.Description,
+                    Status = m.Status,
+                    ReleaseDate = m.ReleaseDate,
+                    CreatedAt = m.CreatedAt,
+                }
+                ).ToListAsync();
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
         }
 
+        
     }
 }
