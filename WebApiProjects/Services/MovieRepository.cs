@@ -131,15 +131,14 @@ namespace MoviesDatabase.Api.Services
             var movie = await _context.Movies
                              .Include(m => m.Directors)
                              .FirstOrDefaultAsync(m => m.MovieId == movieId);
+
             if (movie == null)
             {
                 throw new ArgumentException("Can't identify movie");
             }
+            movie.Status = MovieStatus.Deleted;
 
-            var directors = _context.Directors;
-            await directors.ForEachAsync(d => d.Movies.Remove(movie));
-
-            _context.Movies.Remove(movie);
+            _context.Movies.Update(movie);
         }
         public async Task SaveChangesAsync()
         {
