@@ -18,13 +18,13 @@ namespace WebApiProjects.Db.Entities
         public string? Name { get; set; }
         public string? Description { get; set; }
         public DateTime ReleaseDate { get; set; }
-        public MovieStatus Status { get; set; }
+        public MovieStatus Status { get; set; } = MovieStatus.Active;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public List<Director> Directors { get; set; }
+        public List<DirectorEntity> Directors { get; set; }
 
         public MovieEntity()
         {
-            Directors = new List<Director>();
+            Directors = new List<DirectorEntity>();
         }
 
     }

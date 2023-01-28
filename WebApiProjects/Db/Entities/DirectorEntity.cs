@@ -3,16 +3,16 @@ using WebApiProjects.Db.Entities;
 
 namespace MoviesDatabase.Api.Db.Entities
 {
-    public class Director
+    public class DirectorEntity
     {
         [Key]
-        public Guid ProducerId { get; set; } = Guid.NewGuid();
+        public Guid DirectorId { get; set; } = Guid.NewGuid();
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public int Age { get; set; }
         public List<MovieEntity> Movies { get; set; }
 
-        public Director()
+        public DirectorEntity()
         {
             Movies = new List<MovieEntity>();
         }

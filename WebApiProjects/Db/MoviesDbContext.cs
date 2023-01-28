@@ -8,7 +8,7 @@ namespace WebApiProjects.Db
     {
 
         public DbSet<MovieEntity> Movies { get; set; }
-        public DbSet<Director> Directors { get; set; }
+        public DbSet<DirectorEntity> Directors { get; set; }
 
         public MoviesDbContext(DbContextOptions<MoviesDbContext> options) : base(options)
         {
@@ -34,7 +34,7 @@ namespace WebApiProjects.Db
                  .IsRequired();
             });
 
-            builder.Entity<Director>()
+            builder.Entity<DirectorEntity>()
                     .HasMany(d => d.Movies)
                     .WithMany(m => m.Directors)
                     .UsingEntity(j => j.ToTable("DirectorMovies"));
