@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoviesDatabase.Api.Db.Entities;
 using MoviesDatabase.Api.Models.Requests;
-using System.Reflection.PortableExecutable;
 using WebApiProjects.Db;
 
 namespace MoviesDatabase.Api.Services
@@ -34,7 +33,7 @@ namespace MoviesDatabase.Api.Services
         }
 
         public async Task<List<DirectorEntity>> GetAllDirectors()
-        {   
+        {
             return await _context.Directors.Include(d => d.Movies).ToListAsync();
         }
 

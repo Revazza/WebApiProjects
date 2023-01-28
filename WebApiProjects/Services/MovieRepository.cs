@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoviesDatabase.Api.Db.Entities;
+using MoviesDatabase.Api.Models.Dto;
 using MoviesDatabase.Api.Models.Requests;
 using WebApiProjects.Db;
 using WebApiProjects.Db.Entities;
@@ -10,7 +11,10 @@ namespace MoviesDatabase.Api.Services
     {
         Task AddMovieAsync(AddMovieRequest request);
         Task<List<MovieEntity>> GetAllMoviesAsync();
+        Task<MovieEntity?> GetMovieByIdAsync(Guid id);
+        Task<List<MovieDto>> SearchMovies(SearchMovieRequest request);
         Task SaveChangesAsync();
+
     }
 
 
@@ -46,19 +50,65 @@ namespace MoviesDatabase.Api.Services
             };
 
             directors.ForEach(d => d.Movies.Add(newMovie));
-            
+
             await _context.Movies.AddAsync(newMovie);
 
         }
 
         public async Task<List<MovieEntity>> GetAllMoviesAsync()
         {
-            return await _context.Movies.Include(m => m.Directors).ToListAsync();
+            return await _context.Movies.ToListAsync();
+        }
+
+        public async Task<MovieEntity?> GetMovieByIdAsync(Guid id)
+        {
+            var movie = await _context.Movies.FirstOrDefaultAsync(m => m.MovieId == id);
+
+            return movie != null ? movie : null;
         }
 
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<MovieDto>> SearchMovies(SearchMovieRequest request)
+        {
+            var movies = _context.Movies.Include(m => m.Directors).AsQueryable();
+
+            if (!string.IsNullOrEmpty(request.MovieName))
+            {
+                movies = movies.Where(m => m.Name!.Contains(request.MovieName));
+            }
+            if (!string.IsNullOrEmpty(request.Description))
+            {
+                movies = movies.Where(m => m.Description!.Contains(request.Description));
+            }
+
+            if (!string.IsNullOrEmpty(request.DirectorName))
+            {
+                movies = movies.Where(m => m.Directors.Any(d => d.FirstName!.Contains(request.DirectorName)));
+            }
+            if (request.RealiseDate != DateTime.MinValue)
+            {
+                movies = movies.Where(m => m.ReleaseDate >= request.RealiseDate);
+            }
+            if (request.Ordered)
+            {
+                movies = movies.OrderBy(m => m.ReleaseDate);
+            }
+
+            return await movies
+                .Select(m => new MovieDto()
+                {
+                    MovieId = m.MovieId,
+                    Name = m.Name,
+                    Description = m.Description,
+                    Status = m.Status,
+                    ReleaseDate = m.ReleaseDate,
+                    CreatedAt = m.CreatedAt,
+                }
+                ).ToListAsync();
         }
     }
 }

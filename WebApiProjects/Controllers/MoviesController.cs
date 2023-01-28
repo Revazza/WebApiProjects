@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using MoviesDatabase.Api.Models.Requests;
 using MoviesDatabase.Api.Services;
 
@@ -31,6 +32,23 @@ namespace MoviesDatabase.Api.Controllers
 
             return Ok("");
         }
+
+        [HttpGet("get-movies-by-id/{movieId}")]
+        public async Task<IActionResult> GetMovieById(Guid movieId)
+        {
+            var movie = await _moviesService.GetMovieByIdAsync(movieId);
+
+            return movie != null ? Ok(movie) : BadRequest("Movie doesn't exist");
+        }
+
+        [HttpPost("search-movies")]
+        public async Task<IActionResult> SearchMovies(SearchMovieRequest request)
+        {
+            var filteredMovies = await _moviesService.SearchMovies(request);
+
+            return Ok(filteredMovies);
+        }
+
         [HttpGet("get-all-movies")]
         public async Task<IActionResult> GetAllMovies()
         {
