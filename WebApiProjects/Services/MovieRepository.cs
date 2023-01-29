@@ -85,6 +85,8 @@ namespace MoviesDatabase.Api.Services
 
         }
 
+        // აქაც და მგონი სხვა ადგილებში სტატუსი წაშლილის რომ არ ქონდეს მაგასაც უნდა ამოწმებდე, 
+        // თუ ამოწმებ და ვერ ვნახე, მეპატიება. შენსავით მაგარი არ ვარ. გითში რომ ვივარჯიშო უფრო იმიტომ ვწერ ამას.
         public async Task<List<MovieEntity>> GetAllMoviesAsync()
         {
             return await _context.Movies.Include(m => m.Genres).ToListAsync();
