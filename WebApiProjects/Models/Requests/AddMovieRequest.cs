@@ -17,6 +17,7 @@ namespace MoviesDatabase.Api.Models.Requests
         {
             if (string.IsNullOrEmpty(Name) || Name.Length > 200)
             {
+                // თუ ტექსტი 200 სიმბოლოზე მეტია ArgumentNullException ეს იმუშავებს??
                 throw new ArgumentNullException("Name is not specified");
             }
             if (string.IsNullOrEmpty(Description) || Description.Length > 2000)
