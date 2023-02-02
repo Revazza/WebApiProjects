@@ -55,11 +55,7 @@ namespace BonusSystem.Services
                     CreatedAt = DateTime.UtcNow,
                 };
 
-                // when calculating top 10 recommendator with most bonus
-                // we're calculating bonus depending on RecommendatorId
-                // so last RecommendatorId should be ommited because
-                // we need to stop the chain somewhere
-                if (employee.RecommendatorId != Guid.Empty && i != 2)
+                if (employee.RecommendatorId != Guid.Empty )
                 {
                     newBonus.RecommendatorId = employee.RecommendatorId;
                 }
@@ -173,11 +169,11 @@ namespace BonusSystem.Services
 
                 if (dictionary.ContainsKey(b.RecommendatorId))
                 {
-                    dictionary[b.RecommendatorId] += b.Amount / 2;
+                    dictionary[b.RecommendatorId] += b.Amount;
                 }
                 else
                 {
-                    dictionary.Add(b.RecommendatorId, b.Amount / 2);
+                    dictionary.Add(b.RecommendatorId, b.Amount);
                 }
             });
 
