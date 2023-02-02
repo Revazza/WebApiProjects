@@ -55,7 +55,11 @@ namespace BonusSystem.Services
                     CreatedAt = DateTime.UtcNow,
                 };
 
-                if (employee.RecommendatorId != Guid.Empty )
+                // when calculating top 10 recommendator with most bonus
+                // we're calculating bonus depending on RecommendatorId
+                // so last RecommendatorId should be ommited because
+                // we need to stop the chain somewhere
+                if (employee.RecommendatorId != Guid.Empty && i != 2)
                 {
                     newBonus.RecommendatorId = employee.RecommendatorId;
                 }
